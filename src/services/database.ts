@@ -15,8 +15,13 @@ export class DatabaseService{
         }
 
         try {
-            await mongoose.connect(config.mongodb.uri, config.mongodb.options)
+            await mongoose.connect(config.mongodb.uri,{
+                ...config.mongodb.options,
+                serverSelectionTimeoutMS: 30000, // 30 seconds
+              })
             console.log('Connected to MongoDB successfully');
+            // await mongoose.connect(config.mongodb.uri, config.mongodb.options)
+            // console.log('Connected to MongoDB successfully');
 
             mongoose.connection.on("error", (error)=>{
                 console.error('MongoDB connection error:', error);
@@ -32,10 +37,22 @@ export class DatabaseService{
         }
     }
 
+     // Add a disconnect method to close the connection
+     private async disconnect() {
+        try {
+            await mongoose.connection.close();
+            console.log("MongoDB connection closed.");
+        } catch (error) {
+            console.error("Error disconnecting from MongoDB:", error);
+        }
+    }
+
     async createUser(userData: Omit<IUser, 'createdAt'>): Promise<IUser> {
         try {
             const user = new User(userData);
-            return await user.save();
+            const result = await user.save();
+            await this.disconnect();
+            return result;
         } catch (error) {
             console.error('Error creating user:', error);
             throw error;
@@ -44,8 +61,9 @@ export class DatabaseService{
 
     async getUsers(): Promise<IUser[]> {
         try {
-            return await User.find().sort({ createdAt: -1 });
-        } catch (error) {
+            const users = await User.find().sort({ createdAt: -1 });
+            await this.disconnect(); 
+            return users;        } catch (error) {
             console.error('Error getting users:', error);
             throw error;
         }

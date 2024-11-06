@@ -1,9 +1,9 @@
 import { ApolloServer } from 'apollo-server-express';
 import express from 'express';
+import serverless from 'serverless-http'; // Import serverless-http
 import { typeDefs } from './graphql/schema';
 import { resolvers } from './graphql/resolvers';
 import { config } from './configuration/config';
-
 
 async function startServer() {
     const app = express();
@@ -12,7 +12,6 @@ async function startServer() {
         typeDefs, 
         resolvers,
         context: ({ req }) => {
-            // You can add authentication here
             return { req };
         }
     });
@@ -20,14 +19,10 @@ async function startServer() {
     await server.start();
     server.applyMiddleware({ app });
 
-    app.listen(config.server.port, () => {
-        console.log(
-            `🚀 Server ready at http://localhost:${config.server.port}${server.graphqlPath}`
-        );
-    });
+    return serverless(app);
 }
 
-startServer().catch(error => {
-    console.error('Failed to start server:', error);
-    process.exit(1);
-});
+export default async (req: any, res: any) => {
+    const server = await startServer();
+    return server(req, res);
+};
