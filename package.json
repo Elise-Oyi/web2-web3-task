@@ -9,7 +9,7 @@
     "test:integration": "ts-node _test/index.test.ts",
     "ts.check": "tsc --project tsconfig.json",
     "add-build": "git add dist",
-    "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' index.ts",
+    "dev": "ts-node src/index.ts",
     "start": "node dist/index.js",
     "format": "prettier --write .",
     "server": "nodemon index.ts"

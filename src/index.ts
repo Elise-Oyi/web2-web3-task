@@ -1,8 +1,8 @@
 import { ApolloServer } from 'apollo-server-express';
 import express from 'express';
-import { typeDefs } from './src/graphql/schema';
-import { resolvers } from './src/graphql/resolvers';
-import { config } from './src/configuration/config';
+import { typeDefs } from './graphql/schema';
+import { resolvers } from './graphql/resolvers';
+import { config } from './configuration/config';
 
 
 async function startServer() {
